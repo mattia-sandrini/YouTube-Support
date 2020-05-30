@@ -1,8 +1,8 @@
 const puppteteer = require('puppeteer');  
-const fs = require('fs'); 
+/*const fs = require('fs'); 
 
 let rawdata = fs.readFileSync('.secrets');
-let users = JSON.parse(rawdata);
+let users = JSON.parse(rawdata);*/
 
 //let url = "https://www.youtube.com/watch?v=VxvPjBvvemA";
 let url = "https://www.youtube.com/watch?v=gqvqDGRsLz0";
@@ -19,7 +19,7 @@ const delay = t => new Promise(resolve => setTimeout(resolve, t));
 
 
 // Create an async function to handle the asyncronous opetations between the brwoser and puppeteer, which are exposed via promises 
-async function execute(url) {
+async function execute(url, repeat=false) {
     const browser = await puppteteer.launch({
         headless: false, // Option to open up the browser
         defaultViewport: null // Adjustes possible graphical glitches
@@ -42,15 +42,24 @@ async function execute(url) {
     await page.$eval(playSelector, button => button.click());
 
     console.log(durationText);
-    let durationComponents = durationText.slit(':');
+    let durationComponents = durationText.split(':');
     if (durationComponents.length < 3)
         durationComponents.unshift(0); // Insert 0 at the beginning of the array
     // Calculate the duration in seconds
-    let duration = durationComponents[0] * 3600 + durationComponents[1] * 60 + durationComponents[2];
+    let duration = parseInt(durationComponents[0]) * 3600 + parseInt(durationComponents[1]) * 60 + parseInt(durationComponents[2]);
+    console.log(`Closing browser in ${duration} seconds.`);
     delay(duration*1000).then(() => browser.close());
+    if (repeat) {
+        delay(duration*1000).then(() => execute(url, true));
+    }
 }
 
-for (let i=0; i<2; i++) {
-    await execute(url);
-    //delay(1000).then(() => execute(url));
-}
+execute(url, true);
+
+/*
+(async () => {
+    for (let i=0; i<10; i++) {
+        await execute(url, i<3);
+        //delay(1000).then(() => execute(url));
+    }
+})();*/
