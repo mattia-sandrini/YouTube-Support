@@ -20,5 +20,8 @@
   "bugs": {
     "url": "https://github.com/mattia-sandrini/YouTube-support/issues"
   },
-  "homepage": "https://github.com/mattia-sandrini/YouTube-support#readme"
+  "homepage": "https://github.com/mattia-sandrini/YouTube-support#readme",
+  "dependencies": {
+    "puppeteer": "^3.2.0"
+  }
 }
