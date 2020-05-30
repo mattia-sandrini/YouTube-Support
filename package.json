@@ -1,0 +1,24 @@
+{
+  "name": "youtube-support",
+  "version": "1.0.0",
+  "description": "Puppeteer app for automating YT video viwes and likes automation.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mattia-sandrini/YouTube-support.git"
+  },
+  "keywords": [
+    "puppeteer",
+    "youtube",
+    "nodejs"
+  ],
+  "author": "Mattia Sandrini",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mattia-sandrini/YouTube-support/issues"
+  },
+  "homepage": "https://github.com/mattia-sandrini/YouTube-support#readme"
+}
