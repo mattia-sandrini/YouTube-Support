@@ -22,35 +22,47 @@ const delay = t => new Promise(resolve => setTimeout(resolve, t));
 async function execute(url, repeat=false) {
     const browser = await puppteteer.launch({
         headless: false, // Option to open up the browser
-        defaultViewport: null // Adjustes possible graphical glitches
+        defaultViewport: null, // Adjustes possible graphical glitches
+        waitUntil: 'load',
+        // Remove the timeout
+        timeout: 0
     });
-    const page = await browser.newPage();
 
-    const navigationPromise = page.waitForNavigation();
-    //await navigationPromise;
+    try {
+        const page = await browser.newPage();
+        const navigationPromise = page.waitForNavigation();
+        //await navigationPromise;
 
-    await page.goto(url);
+        await page.goto(url);
 
-    // Tell puppeteer to wait untill this CSS selector is loaded in the page
-    const durationSelector = `#movie_player span.ytp-time-duration`;
-    await page.waitForSelector(durationSelector);
-    const durationText = await getEvalText(page, durationSelector);
+        // Tell puppeteer to wait untill this CSS selector is loaded in the page
+        const durationSelector = `#movie_player span.ytp-time-duration`;
+        await page.waitForSelector(durationSelector);
+        const durationText = await getEvalText(page, durationSelector);
 
-    // Retrieve the play button
-    const playSelector = `#movie_player > div.ytp-cued-thumbnail-overlay > button`;
-    await page.waitForSelector(playSelector);
-    await page.$eval(playSelector, button => button.click());
+        // Retrieve the play button
+        const playSelector = `#movie_player > div.ytp-cued-thumbnail-overlay > button`;
+        await page.waitForSelector(playSelector);
+        await page.$eval(playSelector, button => button.click());
 
-    console.log(durationText);
-    let durationComponents = durationText.split(':');
-    if (durationComponents.length < 3)
-        durationComponents.unshift(0); // Insert 0 at the beginning of the array
-    // Calculate the duration in seconds
-    let duration = parseInt(durationComponents[0]) * 3600 + parseInt(durationComponents[1]) * 60 + parseInt(durationComponents[2]);
-    console.log(`Closing browser in ${duration} seconds.`);
-    delay(duration*1000).then(() => browser.close());
-    if (repeat) {
-        delay(duration*1000).then(() => execute(url, true));
+        console.log(durationText);
+        let durationComponents = durationText.split(':');
+        if (durationComponents.length < 3)
+            durationComponents.unshift(0); // Insert 0 at the beginning of the array
+        // Calculate the duration in seconds
+        let duration = parseInt(durationComponents[0]) * 3600 + parseInt(durationComponents[1]) * 60 + parseInt(durationComponents[2]);
+        console.log(`Closing browser in ${duration} seconds.`);
+        delay(duration*1000).then(() => browser.close());
+        if (repeat) {
+            delay(duration*1000).then(() => execute(url, true));
+        }
+    }
+    catch (err) {
+        console.log(err);
+        try {
+            browser.close();
+        }
+        catch (e) {}
     }
 }
 
