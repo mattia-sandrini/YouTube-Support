@@ -30,6 +30,10 @@ async function execute(url, repeat=false) {
 
     try {
         const page = await browser.newPage();
+        // Create raw protocol session.
+        const session = await page.target().createCDPSession();
+        const {windowId} = await session.send('Browser.getWindowForTarget');
+        
         const navigationPromise = page.waitForNavigation();
         //await navigationPromise;
 
@@ -39,6 +43,11 @@ async function execute(url, repeat=false) {
         const durationSelector = `#movie_player span.ytp-time-duration`;
         await page.waitForSelector(durationSelector);
         const durationText = await getEvalText(page, durationSelector);
+
+        // Mute the video before playing
+        const muteSelector = `button.ytp-mute-button`;
+        await page.waitForSelector(muteSelector);
+        await page.$eval(muteSelector, button => button.click());
 
         // Retrieve the play button
         const playSelector = `#movie_player > div.ytp-cued-thumbnail-overlay > button`;
@@ -52,6 +61,9 @@ async function execute(url, repeat=false) {
         // Calculate the duration in seconds
         let duration = parseInt(durationComponents[0]) * 3600 + parseInt(durationComponents[1]) * 60 + parseInt(durationComponents[2]);
         console.log(`Closing browser in ${duration} seconds.`);
+
+        await session.send('Browser.setWindowBounds', {windowId, bounds: {windowState: 'minimized'}});
+        
         delay(duration*1000).then(() => browser.close());
         if (repeat) {
             delay(duration*1000).then(() => execute(url, true));
